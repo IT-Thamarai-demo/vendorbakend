@@ -17,7 +17,7 @@ cloudinary.config({
 
 // ✅ CORS Configuration
 app.use(cors({
-  origin: 'http://localhost:8080', // Change to your frontend URL
+  origin: 'https://vendor-27so.onrender.com/register',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
