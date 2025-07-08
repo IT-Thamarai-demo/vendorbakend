@@ -8,7 +8,7 @@ const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
-// MongoDB Atlas Connection
+// MongoDB Atlas Connection String
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.fqn3nm3.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`;
 
 // Cloudinary Configuration
@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 
-// Health Check
+// Health Check Route
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
@@ -36,11 +36,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Database Connection with Retry Logic
+// MongoDB Connection with Retry Logic
 const connectWithRetry = () => {
   mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     serverSelectionTimeoutMS: 5000
   })
   .then(() => console.log('MongoDB Atlas connected successfully'))
