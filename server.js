@@ -28,6 +28,9 @@ app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 
 // Health Check Route
+app.get('/', (req, res) => {
+    res.status(200).json({ message: 'API is running' });
+});
 
 // MongoDB Connection with Retry Logic
 
