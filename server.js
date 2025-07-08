@@ -28,50 +28,22 @@ app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 
 // Health Check Route
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'healthy',
-    dbState: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    cloudinary: !!cloudinary.config().cloud_name
-  });
-});
 
 // MongoDB Connection with Retry Logic
-const connectWithRetry = () => {
-  mongoose.connect(MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000
-  })
-  .then(() => console.log('MongoDB Atlas connected successfully'))
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-    console.log('Retrying connection in 5 seconds...');
-    setTimeout(connectWithRetry, 5000);
-  });
-};
 
-// Connection Events
-mongoose.connection.on('connected', () => {
-  console.log('Mongoose connected to DB');
-});
-
-mongoose.connection.on('error', (err) => {
-  console.error('Mongoose connection error:', err);
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('Mongoose disconnected');
-});
-
+async function connectToDB() {
+    try {
+        await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        console.log("Connected to MongoDB");
+    } catch (e) {
+        console.error("Error connecting to MongoDB:", e);
+    }
+}
+connectToDB();
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  connectWithRetry();
+ 
 });
 
-// Graceful Shutdown
-process.on('SIGINT', async () => {
-  await mongoose.connection.close();
-  console.log('Mongoose connection closed due to app termination');
-  process.exit(0);
-});
