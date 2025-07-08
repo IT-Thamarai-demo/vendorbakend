@@ -33,7 +33,7 @@ app.use('/api/auth', authRoutes);
 
 async function connectToDB() {
     try {
-        await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
         console.log("Connected to MongoDB");
     } catch (e) {
         console.error("Error connecting to MongoDB:", e);
