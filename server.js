@@ -3,44 +3,59 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const { v2: cloudinary } = require('cloudinary');
-const productRoutes = require('./routes/productRoutes');
-const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
-// ✅ Cloudinary Configuration
+// Cloudinary Configuration
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dq43oxtjn',
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// ✅ CORS Configuration
-app.use(cors({
-  origin: 'https://vendor-27so.onrender.com',
+// Enhanced CORS Configuration
+const allowedOrigins = [
+  'https://vendor-27so.onrender.com',
+  'http://localhost:8080' // Add localhost for development
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
+  credentials: true,
+  optionsSuccessStatus: 204
+};
 
-// ✅ Preflight OPTIONS request handler
-app.options('*', cors());
+// Apply CORS middleware
+app.use(cors(corsOptions));
 
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 
-// ✅ Body Parsers
+// Body Parsers
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Routes
-app.use('/api/products', productRoutes);
-app.use('/api/auth', authRoutes);
+// Routes
+const productRoutes = require('./routes/productRoutes');
+const authRoutes = require('./routes/authRoutes');
 
-// ✅ Health Check Route
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+
+// Health Check
 app.get('/', (req, res) => {
   res.status(200).json({ message: 'API is running' });
 });
 
-// ✅ MongoDB Connection
+// MongoDB Connection
 async function connectToDB() {
   try {
     await mongoose.connect(process.env.MONGODB_URI, {
@@ -49,12 +64,12 @@ async function connectToDB() {
     });
     console.log("✅ Connected to MongoDB");
   } catch (e) {
-    console.error("❌ Error connecting to MongoDB:", e);
+    console.error("❌ MongoDB connection error:", e);
   }
 }
 connectToDB();
 
-// ✅ Start Server
+// Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
