@@ -16,7 +16,8 @@ cloudinary.config({
 // Enhanced CORS Configuration
 const allowedOrigins = [
   'https://market-portal-dash.onrender.com',
-  'http://localhost:8080' // Add localhost for development
+  'http://localhost:8080',
+  'http://localhost:8081'
 ];
 
 const corsOptions = {
